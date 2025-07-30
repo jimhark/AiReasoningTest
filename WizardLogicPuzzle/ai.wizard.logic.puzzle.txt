@@ -1,0 +1,275 @@
+Perform my EXTREME Logic Test called:
+
+The Mysteries of the Seven Artifacts
+
+Background:  In the theoretical land of Lumaria, there are seven grand
+wizards—each from a different realm:  Avalon, Bryndor, Celestia,
+Dorne, Eldoria, Faeland, and Galoria.  Each wizard possesses a unique magical
+artifact, studies a distinct field of magic, and has a specific type of familiar
+(a special magical creature companion).  Please note, that no two wizards share
+the same artifact, field of magic, or familiar.
+
+Artifacts:
+    Amulet of Dreams
+    Crystal of Time
+    Mirror of Truth
+    Orb of Shadows
+    Ring of Realms
+    Staff of Elements
+    Tome of Secrets
+
+Fields of Magic:
+    Alchemy
+    Divination
+    Elemental Magic
+    Enchantment
+    Healing
+    Illusion
+    Necromancy
+
+Familiars:
+    Chimera
+    Dragon
+    Griffin
+    Pegasus
+    Phoenix
+    Salamander
+    Unicorn
+
+Task:
+
+Determine which wizard belongs to which realm, holds which artifact, studies
+which field of magic, and has which familiar, based on the clues provided.
+
+Clues:
+    The wizard from Celestia studies Illusion magic and does not have the Amulet of Dreams.
+    Eldoria's wizard holds the Orb of Shadows and is not versed in Necromancy or Alchemy.
+    The wizard who owns the Crystal of Time has a Phoenix as a familiar and is not from Dorne or Galoria.
+    The Enchantment wizard is from Avalon and does not possess the Staff of Elements.
+    The wizard with the Griffin familiar studies Healing magic.
+    Faeland's wizard has the Ring of Realms but does not have a Salamander familiar.
+    The Necromancy wizard holds the Mirror of Truth and is not from Bryndor.
+    The wizard from Dorne has a Unicorn familiar and does not study Divination.
+    The Alchemy wizard is from Galoria and does not possess the Tome of Secrets.
+    The wizard who studies Divination has a Salamander familiar.
+    The Staff of Elements is held by the wizard whose familiar is a Dragon.
+    The wizard from Bryndor does not study Healing magic.
+    The wizard with the Pegasus familiar studies Elemental Magic.
+    The Tome of Secrets is not held by the wizard from Avalon.
+    The wizard who owns the Amulet of Dreams is from Bryndor.
+
+Instructions:
+    Use the clues to deduce the correct associations.
+    Provide a detailed explanation of your reasoning process.
+    Present your final answers in a clear, organized format (e.g., a table or list).
+
+========================================
+
+Notes on Pure Python Implementation
+-----------------------------------
+
+How to represent the solution state
+
+The solution state can be represented by:
+
+  * A 2 dimensional array
+
+  * Where dimensions represent catagory member count (7) x catagory count (4,
+    while realm is directly mapped to position on the list, we create a
+    (somewhat) redundent catagory for it to avoid special cases in the code).
+
+  * Each item in the array is a set (of strings (or enum members) that represents
+    the members of a catagory that have not been eliminated.
+
+  Note: the wizards don't have names and are only identified by their attributes.
+  Therefore 'wizard from Celestia', 'Eldoria's wizard', etc. refer to our
+  "primary key", realm.
+
+
+Clues and their decomposition into rules
+
+  1.  The wizard from Celestia studies Illusion magic and does not have the Amulet of Dreams.
+        The wizard from "Celestia" (=realm) studies [AND] "Illusion magic" (=field)
+        The wizard from "Celestia" (=realm) does [AND] not have the "Amulet of Dreams" (!=artifact)
+          has one of these artifacts:
+            Crystal of Time, Mirror of Truth, Orb of Shadows, Ring of Realms, Staff of Elements, Tome of Secrets
+
+  2.  Eldoria's wizard holds the Orb of Shadows and is not versed in Necromancy or Alchemy.
+        "Eldoria's" (=realm) wizard holds [AND] the "Orb of Shadows" (=artifact)
+        "Eldoria's" (=realm) wizard is [AND] not versed in "Necromancy" or "Alchemy" (!=field)
+          is versed in one of these fields:
+            Divination, Elemental Magic, Enchantment, Healing, Illusion
+
+  3.  The wizard who owns the Crystal of Time has a Phoenix as a familiar and is not from Dorne or Galoria.
+        The wizard who owns the "Crystal of Time" (=artifact) has [AND] a "Phoenix" (=familiar)
+        The wizard who owns the "Crystal of Time" (=artifact) is  [AND] not from "Dorne" or "Galoria" (!=realm)
+          is from one of these realms:
+            Avalon, Bryndor, Celestia, Eldoria, Faeland
+
+  4.  The Enchantment wizard is from Avalon and does not possess the Staff of Elements.
+        The "Enchantment" (=field) wizard is [AND] from "Avalon" (=realm)
+        The "Enchantment" (=field) wizard does [AND] not possess the "Staff of Elements" (!=artifact)
+
+  5.  The wizard with the Griffin studies Healing magic
+        The wizard with the "Griffin" (=familiar) studies [AND] "Healing magic" (=field)
+
+  6.  Faeland's wizard has the Ring of Realms but does not have a Salamander familiar.
+        "Faeland's" (realm) wizard has [AND] the "Ring of Realms" (artifact)
+        "Faeland's" (realm) wizard does [AND] not have a "Salamander" (!=familiar)
+          does have one of these familiars:
+            Chimera, Dragon, Griffin, Pegasus, Phoenix, Unicorn
+
+  7.  The Necromancy wizard holds the Mirror of Truth and is not from Bryndor.
+        The "Necromancy" (=field) wizard [AND] holds the "Mirror of Truth" (=artifact)
+        The "Necromancy" (=field) wizard is [AND] not from "Bryndor" (!=realm)
+          is from one of these realms:
+            Avalon, Celestia, Dorne, Eldoria, Faeland, Galoria
+
+  8.  The wizard from Dorne has a Unicorn familiar and does not study Divination
+        The wizard from "Dorne" (=realm) has [AND] a "Unicorn" (=familiar)
+        The wizard from "Dorne" (=realm) does [AND] not study "Divination" (!=field)
+          does study one these fields:
+            Alchemy, Elemental Magic, Enchantment, Healing, Illusion, Necromancy
+
+  9.  The Alchemy wizard is from Galoria and does not possess the Tome of Secrets.
+        The "Alchemy" (=field) wizard is [AND] from "Galoria" (=realm)
+        The "Alchemy" (=field)  wizard does [AND] not possess the "Tome of Secrets" (!=artifact)
+          does posess one of these artifacts:
+            Amulet of Dreams, Crystal of Time, Mirror of Truth, Orb of Shadows, Ring of Realms, Staff of Elements
+
+  10. The wizard who studies Divination has a Salamander familiar.
+        The wizard who studies "Divination" (=field) has [AND] a "Salamander" (=familiar)
+
+  11. The Staff of Elements artifact is held by the wizard whose (familiar) is a Dragon.
+        The "Staff of Elements" (=artifact) is [AND] held by the wizard with a "Dragon" (=familiar)
+
+  12. The wizard from Bryndor does not study Healing magic.
+        The wizard from "Bryndor" (=realm) does [AND] not study "Healing magic" (!=field)
+          does study one of these fields:
+            Alchemy, Divination, Elemental Magic, Enchantment, Illusion, Necromancy
+
+  13. The wizard with the Pegasus familiar studies Elemental Magic.
+        The wizard with the "Pegasus" (=familiar) studies [AND] "Elemental Magic" (=field)
+
+  14. The Tome of Secrets is not held by the wizard from Avalon.
+        The "Tome of Secrets" (=artifact) is [AND] not held by the wizard from "Avalon" (!=realm)
+
+  15. The wizard who owns the Amulet of Dreams is from Bryndor.
+        The wizard who owns the "Amulet of Dreams" (=artifact) is [AND] from "Bryndor" (=realm)
+
+
+How clues are represented
+
+  The clues are represented as a list of rules. Clues that contain mutiple
+  rules (usually separated by 'and') will be represented as separate rules.
+
+  Where clue says 'not' ('does not have', 'is not versed', etc.), we will use
+  the catagory members that remain (as if written 'does have one of ...' , or
+  'is versed in one of ...').
+
+  All rules are in the form of:
+
+      (CategoryId = MemberValues) AND (CategoryId = MemberValues)
+
+      Where:
+          CategoryId is the name or enum value that identifies the category
+          MemberValues is a set of string names or enums that listing possible values
+
+      All the rules for the current puzzles use equality (really set membership),
+      and AND as the only operators and in the positions indicated above. This
+      allows rule representation to be simplified to:
+
+      (CategoryId, MemberValues), (CategoryId, MemberValues)
+
+      With the operators being implied.
+
+
+How the solution is generated
+
+  The solution state and rule list lead to a specification of solving process.
+
+  We initilize a solution state:
+
+  #   Realm,        Artifact, Familiar, Field
+  (
+    ( ('Avalon'),   (*),      (*),      (*) ),
+    ( ('Bryndor'),  (*),      (*),      (*) ),
+    ( ('Celestia'), (*),      (*),      (*) ),
+    ( ('Dorne'),    (*),      (*),      (*) ),
+    ( ('Eldoria'),  (*),      (*),      (*) ),
+    ( ('Faeland'),  (*),      (*),      (*) ),
+    ( ('Galoria'),  (*),      (*),      (*) ),
+  )
+
+  Asterisks (*) above represent the full set of valid members for a category.
+
+  We start with the realm category column filled with a sorted list of members
+  to avoid generating each row permutation in the solution. Any category
+  could have been limited in this way, the choice of realm is (somewhat)
+  arbitrary.
+
+  It's possible that directly applying the rules iteratively until no changes
+  are made to the solution state will not complete the solution. In that case
+  we'll need to search the remaning possible solutions using trial and error
+  with backtracking.
+
+  Rejected thought:
+  Knowing we'll need to write code that iterates solution states, we could
+  start with that. Iterating through all states and testing which ones
+  match all the rules. The search space is (!7)^3, seven factorial cubed,
+  128,024,064,000. Without having a way to apply the rules, not just verify
+  them, the search space seems too large, brute force can't be expected to
+  complete in a reasonable time. We'll need to apply the rules at the start.
+
+  For a proper and more performant solution, we must implement rules, iterate
+  over each rule, applying ones that math, then eliminate possible catagory
+  members (like solving a 1x7 sudoku, but don't go overboard implementing full
+  logic, we have trial and error as a fallback).
+
+----------------------------------------
+
+- **Avalon**: Tome, Enchantment, unknown familiar (maybe none listed)
+- **Bryndor**: Amulet, Unicorn, unknown magic (maybe none listed)
+- **Celestia**: Crystal, Necromancy, Phoenix
+- **Dorne**: Staff, Healing, Griffin
+- **Eldoria**: Orb, Elemental, Pegasus
+- **Faeland**: Ring, Divination, Salamander
+- **Galoria**: Mirror, Alchemy, Basilisk (assuming missing familiar)
+
+Solution: 0 (for each cell, the union of all solutions)
+
+Avalon      Crystal     Enchantment Phoenix
+Bryndor     Amulet      Div,Ele     Peg,Sal
+Celestia    Tome        Illusion    Chimera
+Dorne       Mirror      Necromancy  Unicorn
+Eldoria     Orb         Div,Ele,Hea Gri,Sal,Peg
+Faeland     Ring        Ele,Hea     Gri,Peg
+Galoria     Staff       Alchemy     Dragon
+
+Solution: 1
+Avalon      Crystal     Enchantment Phoenix
+Bryndor     Amulet      Elemental   Pegasus
+Celestia    Tome        Illusion    Chimera
+Dorne       Mirror      Necromancy  Unicorn
+Eldoria     Orb         Divination  Salamander
+Faeland     Ring        Healing     Griffin
+Galoria     Staff       Alchemy     Dragon
+
+Solution: 2
+Avalon      Crystal     Enchantment Phoenix
+Bryndor     Amulet      Divination  Salamander
+Celestia    Tome        Illusion    Chimera
+Dorne       Mirror      Necromancy  Unicorn
+Eldoria     Orb         Healing     Griffin
+Faeland     Ring        Elemental   Pegasus
+Galoria     Staff       Alchemy     Dragon
+
+Solution: 3
+Avalon      Crystal     Enchantment Phoenix
+Bryndor     Amulet      Divination  Salamander
+Celestia    Tome        Illusion    Chimera
+Dorne       Mirror      Necromancy  Unicorn
+Eldoria     Orb         Elemental   Pegasus
+Faeland     Ring        Healing     Griffin
+Galoria     Staff       Alchemy     Dragon
+
